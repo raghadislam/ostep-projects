@@ -10,5 +10,4 @@
 
 int check_for_internal_command(char cmd[], char*argv[]);
 
-
 #endif

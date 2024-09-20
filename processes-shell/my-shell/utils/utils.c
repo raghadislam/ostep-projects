@@ -7,13 +7,14 @@
 #include "utils.h"
 
 
-
+/* function to initialize the path */
 void initialize_path(char* env[])
 {
     env[0] = "/bin";
     env[1] = NULL;
 }
 
+/* function split the parallel comamnds */
 void split_commands(char *input, char **commands, int *num_commands)
 {
     char *token;
@@ -35,7 +36,7 @@ void split_commands(char *input, char **commands, int *num_commands)
 	}
 
 	/* Store the command in the array */
-	commands[i] = strdup(token);	// Duplicate the command string
+	commands[i] = strdup(token);	
 	i++;
 	token = strtok(NULL, "&");
     }
@@ -45,7 +46,7 @@ void split_commands(char *input, char **commands, int *num_commands)
 }
 
 
-
+/* function to check the file existence */
 char *is_file_exist(char *filename, char* env[])
 {
 
@@ -79,31 +80,31 @@ void parse_command(char *cmd, char **args) {
 
     /* Iterate over the arguments */
     for (int i = 0; i < MAX_ARGS; i++) {
-        args[i] = strsep(&cmd, " \t\r\n");  // Split by spaces, tabs, or newlines
+        args[i] = strsep(&cmd, " \t\r\n");
 
         /* If no more tokens, break */
         if (args[i] == NULL)
             break;
 
-        /* Handle output redirection ">" without spaces (e.g., "ls>file.txt") */
+        /* Handle output redirection ">" without spaces */
         char *redir_out = strchr(args[i], '>');
         if (redir_out != NULL) {
             if (*(redir_out + 1) == '>') {
-                // Handle "2>" for error redirection
+                /* Handle "2>" for error redirection */
                 if (*(args[i]) == '2') {
                     *redir_out = '\0';
                     if (strlen(args[i]) == 0) i--;
                     continue;
                 }
             } else {
-                // Standard output redirection
+                /* Standard output redirection */
                 *redir_out = '\0';
                 if (strlen(args[i]) == 0) i--;
                 continue;
             }
         }
 
-        /* Handle input redirection "<" without spaces (e.g., "ls<file.txt") */
+        /* Handle input redirection "<" without spaces */
         char *redir_in = strchr(args[i], '<');
         if (redir_in != NULL) {
             *redir_in = '\0';
@@ -111,7 +112,7 @@ void parse_command(char *cmd, char **args) {
             continue;
         }
 
-        /* Handle standalone redirection operators ">", "2>", and "<" with spaces */
+        /* Handle redirection operators with spaces */
         if (strcmp(args[i], ">") == 0) {
             args[i] = NULL;
             break;
