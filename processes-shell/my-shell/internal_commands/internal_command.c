@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "../utils/utils.h"
 #include "internal_command.h"
 
 //extern char * error_message;

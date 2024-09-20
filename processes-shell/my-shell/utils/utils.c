@@ -3,9 +3,68 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
-#include "pipe.h"
+#include "config.h"
+#include "utils.h"
 
 
+
+void initialize_path(char* env[])
+{
+    env[0] = "/bin";
+    env[1] = NULL;
+}
+
+void split_commands(char *input, char **commands, int *num_commands)
+{
+    char *token;
+    int i = 0;
+
+    /* Use strtok to split the string by '&' */
+    token = strtok(input, "&");
+    while (token != NULL && i < MAX_COMMANDS) {
+	/* Remove leading spaces */
+	while (*token == ' ') {
+	    token++;
+	}
+
+	/* Remove trailing spaces */
+	char *end = token + strlen(token) - 1;
+	while (end > token && *end == ' ') {
+	    *end = '\0';
+	    end--;
+	}
+
+	/* Store the command in the array */
+	commands[i] = strdup(token);	// Duplicate the command string
+	i++;
+	token = strtok(NULL, "&");
+    }
+
+    /* Store the number of commands found */
+    *num_commands = i;
+}
+
+
+
+char *is_file_exist(char *filename, char* env[])
+{
+
+    for (size_t i = 0; env[i] != NULL; i++) {
+	char path[100];
+
+	snprintf(path, sizeof(path), "%s/%s", env[i], filename);
+
+	if (access(path, X_OK) == 0) {
+
+	    return strdup(path);
+	}
+    }
+
+    return NULL;
+
+}
+
+/* function to display error message */
 void display_error()
 {
     char error_message[30] = "An error has occurred\n";
@@ -69,6 +128,4 @@ void parse_command(char *cmd, char **args) {
             i--;
     }
 }
-
-
 

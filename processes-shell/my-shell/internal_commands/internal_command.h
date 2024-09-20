@@ -7,7 +7,6 @@
 #include "mypwd.h"
 #include "mycat.h"
 #include "mygrep.h"
-#include "../piping/pipe.h"
 
 int check_for_internal_command(char cmd[], char*argv[]);
 

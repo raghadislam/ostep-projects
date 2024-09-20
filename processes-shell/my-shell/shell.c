@@ -6,7 +6,8 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <pwd.h>
-#include "piping/pipe.h"
+#include "utils/utils.h"
+#include "utils/config.h"
 #include "shell_variables/shell_variables.h"
 #include "internal_commands/internal_command.h"
 #include "external_commands/external_command.h"
@@ -28,69 +29,14 @@ char *args[MAX_ARGS];
 /* array to store shell variables */
 shell_var ShellVariables[MAX_VAR];
 
-
+/* arrat to store pid of each process*/
 int pid[MAX_COMMANDS];
 
 
 /* environment variables */
-extern char **environ;
+//extern char **environ;
 char *env[500];
 
-void initialize_path(void)
-{
-    env[0] = "/bin";
-    env[1] = NULL;
-}
-
-void split_commands(char *input, char **commands, int *num_commands)
-{
-    char *token;
-    int i = 0;
-
-    /* Use strtok to split the string by '&' */
-    token = strtok(input, "&");
-    while (token != NULL && i < MAX_COMMANDS) {
-	/* Remove leading spaces */
-	while (*token == ' ') {
-	    token++;
-	}
-
-	/* Remove trailing spaces */
-	char *end = token + strlen(token) - 1;
-	while (end > token && *end == ' ') {
-	    *end = '\0';
-	    end--;
-	}
-
-	/* Store the command in the array */
-	commands[i] = strdup(token);	// Duplicate the command string
-	i++;
-	token = strtok(NULL, "&");
-    }
-
-    /* Store the number of commands found */
-    *num_commands = i;
-}
-
-
-
-char *is_file_exist(char *filename)
-{
-
-    for (size_t i = 0; env[i] != NULL; i++) {
-	char path[100];
-
-	snprintf(path, sizeof(path), "%s/%s", env[i], filename);
-
-	if (access(path, X_OK) == 0) {
-
-	    return strdup(path);
-	}
-    }
-
-    return NULL;
-
-}
 
 int main(int argc, char *argv[])
 {
@@ -112,7 +58,7 @@ int main(int argc, char *argv[])
     }
 
     /* Initialize the environment variable with the "/bin" directory */
-    initialize_path();
+    initialize_path(env);
 
 
     /* initialize the buffer and its size */
@@ -191,7 +137,7 @@ int main(int argc, char *argv[])
 
 	    /* check if the file exits */
 	    char *file;
-	    if ((file = is_file_exist(buffer)) == NULL) {
+	    if ((file = is_file_exist(buffer, env)) == NULL) {
 		display_error();
 		continue;
 	    }
