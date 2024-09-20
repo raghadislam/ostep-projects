@@ -8,17 +8,8 @@
 #include <pwd.h>
 #include "utils/utils.h"
 #include "utils/config.h"
-#include "shell_variables/shell_variables.h"
 #include "internal_commands/internal_command.h"
 #include "external_commands/external_command.h"
-
-/* ANSI escape codes for color formatting */
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
-
-#define MAX_COMMAND_LENGTH 100
-#define MAX_ARGS 20
-#define MAX_COMMANDS 15
 
 /* the command will be taken from the user */
 char cmd[MAX_COMMAND_LENGTH];
@@ -26,30 +17,28 @@ char cmd[MAX_COMMAND_LENGTH];
 /* arguments array */
 char *args[MAX_ARGS];
 
-/* array to store shell variables */
-shell_var ShellVariables[MAX_VAR];
-
 /* arrat to store pid of each process*/
 int pid[MAX_COMMANDS];
 
-
 /* environment variables */
-//extern char **environ;
 char *env[500];
 
 
 int main(int argc, char *argv[])
 {
+    /* check the correct usage of the shell */
     if (argc > 2) {
 	display_error();
 	exit(1);
     }
+
+    /* check which mode chosen (interactive mode or batch mode)*/
     FILE *fp;
     if (argc == 1) {
 	fp = stdin;
-
 	printf(ANSI_COLOR_GREEN "wish> " ANSI_COLOR_RESET);
-    } else {
+    } 
+    else {
 	fp = fopen(argv[1], "r");
 	if (fp == NULL) {
 	    display_error();
@@ -79,11 +68,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* remove leading white spaces */
-	while(*input == ' ')
-	{
-		input++;
-	}
-
+	while(*input == ' ') input++;
 
 	if (fp == stdin)
 	{
