@@ -39,6 +39,7 @@ pthread_cond_t queue_cond_empty = PTHREAD_COND_INITIALIZER;
 /* the Bounded Buffer for the threads interaction */
 ChunksData *chunks[MAX_CHUNK];
 
+/* array to store the zipping result of each chunck */
 char* results[MAX_CHUNK];
 
 /* global variables needed */
@@ -63,7 +64,6 @@ void* producer(void* arg);
 /* function to merge all the outputs the threads */
 void Merge();
 
-
 int main(int argc, char *argv[])
 {
 	/* check for crrect usage */
@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	/* get number of files and properly needed threads */
 	files_num = argc;
 	int threads_num = get_nprocs() - 1;
 
@@ -94,10 +95,10 @@ int main(int argc, char *argv[])
 		pthread_join(consumers[i], NULL);
 	}
 
+	/* merge the output */
 	Merge();
 
 	/* Clean everything up */
-
 	for(int i = 0; i <= mx; i++) {
 		if (results[i] != NULL) {
 			free(results[i]); 
@@ -113,11 +114,9 @@ int main(int argc, char *argv[])
 	exit(0);
 }
 
-
 void* producer(void* arg)
 {
 	const char** filenames = (const char**)arg;
-
 
 	/* Number of files to be processed */
 	file_mappings_count = files_num - 1;
@@ -126,7 +125,6 @@ void* producer(void* arg)
 	file_mappings = malloc(file_mappings_count * sizeof(FileMapping));
 
 	for (int i = 1; i < files_num; i++) {
-
 
 		int fd = open(filenames[i], O_RDONLY);
 		if (fd < 0) {
@@ -139,7 +137,6 @@ void* producer(void* arg)
 		if (fstat(fd, &sb) == -1) {
 			perror("fstat");
 			close(fd);
-			//return NULL;
 			exit(1);
 		}
 
@@ -156,7 +153,6 @@ void* producer(void* arg)
 		file_mappings[i - 1].fd = fd;
 		file_mappings[i - 1].size = sb.st_size;
 
-
 		/* Divide the file into chunks and produce work */
 		for(size_t offset = 0; offset < sb.st_size; offset += CHUNK_SIZE)
 		{
@@ -172,8 +168,7 @@ void* producer(void* arg)
 			data->end = (i == files_num - 1 && offset + CHUNK_SIZE >= sb.st_size) ? 1 : 0;
 
 			pthread_mutex_lock(&queue_mutex);
-			while(count == MAX_CHUNK)
-			{
+			while(count == MAX_CHUNK) {
 				pthread_cond_wait(&queue_cond_empty, &queue_mutex);
 			}
 
@@ -186,13 +181,11 @@ void* producer(void* arg)
 	return NULL;
 }
 
-
 void* compress(void* arg)
 {
 	while (1) {
 		pthread_mutex_lock(&queue_mutex);
-		while (count == 0 && end == 0)
-		{
+		while (count == 0 && end == 0) {
 			pthread_cond_wait(&queue_cond_fill, &queue_mutex);
 		}
 		if (count == 0 && end) {
@@ -227,6 +220,7 @@ void* compress(void* arg)
 
 			current_compress = append_number_and_char(current_compress, char_count, prev_char);
 		}
+
 		if(data->ChunkID > mx) mx = data->ChunkID;
 		results[data->ChunkID] = current_compress;
 
@@ -235,7 +229,6 @@ void* compress(void* arg)
 			/* Wake all the consumer threads */
 			pthread_cond_broadcast(&queue_cond_fill);
 			pthread_mutex_unlock(&queue_mutex);
-
 			free(data);
 			return NULL;
 		}
@@ -245,9 +238,6 @@ void* compress(void* arg)
 	}
 	return NULL;
 }
-
-
-
 
 void Merge()
 {
@@ -277,7 +267,7 @@ void Merge()
 				fwrite(&last_n, sizeof(int), 1, stdout);
 				putchar(last_chr);
 			}
-		
+
 			last_chr = current_chr;
 			last_n = num;
 		}
@@ -316,7 +306,6 @@ void Merge()
 
 }
 
-
 void enqueue(ChunksData *c)
 {
 	chunks[fill] = c ;
@@ -336,10 +325,9 @@ char* append_number_and_char(char *str, int num, char c) {
 
 	int num_length = snprintf(NULL, 0, "%d", num); 
 	int current_length = str ? strlen(str) : 0;    
-
 	int new_length = current_length + num_length + 1;
-
 	char *new_str = realloc(str, new_length + 1);
+
 	if (new_str == NULL) {
 		fprintf(stderr, "Memory allocation failed\n");
 		exit(1);
