@@ -76,6 +76,46 @@ class). When the hardware sees that you overwrote `CR3` (even with the same
 value), it guarantees that your PTE updates will be used upon subsequent
 accesses. The `lcr3()` function will help you in this pursuit.
 
+## Usage
+
+To build the virtual memory changes to xv6, run the following command:
+
+```
+make
+```
+
+This will generate a binary files that you can use to run xv6 with the virtual memory changes.
+
+To run xv6 with the virtual memory changes, use the following command:
+
+```
+make qemu-nox
+```
+
+This will start qemu and run xv6 with virtual memory enabled.
+
+## Testing
+
+This project includes the following test programs to:
+
+- `null_test`: Tests null dereference by attempting to write to the NULL pointer. This should cause a page fault and generate a "trap error" message.
+
+  ```
+  null_test
+  ```
+
+- `prot_test1`: Tests the `mprotect` system call by attempting to write to a read-only page of memory. This should cause a page fault and  generate a "trap error" message.
+
+  ```
+  prot_test1
+  ```
+
+- `prot_test2`: Tests the `munprotect` system call by allocating a page of memory, making it read-only using `mprotect`, and then attempting to write to the page. After calling `munprotect`, the program should be able to write to the page without generating a "trap error" message.
+
+  ```
+  prot_test2
+  ```
+
 ## Handling Illegal Accesses
 
 In both the cases above, you should be able to demonstrate what happens when
