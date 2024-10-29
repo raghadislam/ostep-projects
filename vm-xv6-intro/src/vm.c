@@ -385,10 +385,51 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
   return 0;
 }
 
-//PAGEBREAK!
-// Blank page.
-//PAGEBREAK!
-// Blank page.
-//PAGEBREAK!
-// Blank page.
 
+int mprotect(void *addr, int len)
+{
+  pte_t *pte;
+  pde_t *pde;
+  struct proc *p = myproc();  // Get current process
+  
+  char *address = (char *)PGROUNDDOWN((uint)addr);
+  for ( ; len > 0; address += PGSIZE, len--) {
+    pde = &p->pgdir[PDX(address)];
+    if (!(*pde & PTE_P)) {
+      // Page table not present, cannot change permissions
+      return -1;
+    }
+    pte = &((pte_t *)P2V(PTE_ADDR(*pde)))[PTX(address)];
+    if (!(*pte & PTE_P)) {
+      // Page not present, cannot change permissions
+      return -1;
+    }
+    *pte &= ~PTE_W;  // Clear write bit to make it read-only
+  }
+  lcr3(V2P(p->pgdir));  // Invalidate the TLB
+  return 0;
+}
+
+int munprotect(void *addr, int len)
+{
+  pte_t *pte;
+  pde_t *pde;
+  struct proc *p = myproc();  // Get current process
+
+  char *address = (char *)PGROUNDDOWN((uint)addr);
+  for ( ; len > 0; address += PGSIZE, len--) {
+    pde = &p->pgdir[PDX(address)];
+    if (!(*pde & PTE_P)) {
+      // Page table not present, cannot change permissions
+      return -1;
+    }
+    pte = &((pte_t *)P2V(PTE_ADDR(*pde)))[PTX(address)];
+    if (!(*pte & PTE_P)) {
+      // Page not present, cannot change permissions
+      return -1;
+    }
+    *pte |= PTE_W;  // Set write bit to make it writable
+  }
+  lcr3(V2P(p->pgdir));  // Invalidate the TLB
+  return 0;
+}

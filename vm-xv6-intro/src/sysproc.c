@@ -94,3 +94,26 @@ int
 sys_getreadcount(void){
   return getreadcount();
 }
+
+int sys_mprotect()
+{
+  void *addr;
+  int len;
+  if(argptr(0,(void *)&addr,sizeof(*addr)) < 0)
+    return -1;
+  if(argint(1,&len)<0 || len <= 0)
+
+    return -1;
+  return mprotect(addr, len);
+}
+
+int sys_munprotect()
+{
+  void *addr;
+  int len;
+  if(argptr(0,(void *)&addr,sizeof(*addr)) < 0)
+    return -1;
+    if(argint(1,&len)<0 || len <= 0)
+    return -1;
+  return munprotect(addr, len);
+}

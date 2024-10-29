@@ -105,6 +105,8 @@ extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_getreadcount(void);
+extern int sys_mprotect(void);
+extern int sys_munprotect(void);
 
 extern int counter;
 
@@ -130,7 +132,9 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_getreadcount]  sys_getreadcount
+[SYS_getreadcount]  sys_getreadcount,
+[SYS_mprotect] sys_mprotect,
+[SYS_munprotect] sys_munprotect
 };
 
 struct spinlock lock;
