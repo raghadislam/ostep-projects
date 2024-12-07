@@ -17,4 +17,26 @@ void MR_Run(int argc, char *argv[],
 	    Reducer reduce, int num_reducers, 
 	    Partitioner partition);
 
+
+typedef struct MapThreadArgs {
+  char** argv;
+  int start_index;
+  int end_index;
+} mapperArgs;
+
+typedef struct KeyAndValue {
+  char *key;
+  char **values;
+  int size;
+  int capacity;
+  int index;
+} KeyAndValue;
+
+typedef struct KV_array {
+  KeyAndValue *key_values_arr;
+  int size;
+  int capacity;
+  pthread_mutex_t mutex;
+} KV_array;
+
 #endif // __mapreduce_h__
