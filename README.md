@@ -48,31 +48,17 @@ program **a lot**. These small projects are only the beginning of that
 journey; you'll have to do more on your own to truly become proficient.
 
 * [Unix Utilities](initial-utilities) (cat, grep, zip/unzip)
-* Sort (text-based)
-* Sort (binary)
+* [persistent key-value store] (initial-kv)
 * [Reverse](initial-reverse) (very simple reverse program)
 
 ### Processes and Scheduling
 
 * [Shell](processes-shell)
 
-### Virtual Memory
-
-* Memory Allocator
-
 ### Concurrency
 
-* [Web Server](concurrency-webserver)
 * [Parallel Zip](concurrency-pzip)
 * [MapReduce](concurrency-mapreduce)
-* Web Crawler
-
-### File Systems
-
-* [File System Checker](filesystems-checker)
-
-### Distributed Systems
-
 
 ## Kernel Hacking Projects (xv6)
 
@@ -87,7 +73,8 @@ and install the tools you'll need.
 
 ### Initial Projects
 
-* [Intro To xv6](initial-xv6)
+* [Intro To xv6_systemcalls](initial-xv6)
+* [more system calls](initial-xv6-tracer)
 
 ### Processes and Scheduling
 
@@ -102,6 +89,8 @@ and install the tools you'll need.
 * [Kernel Threads (Basic Implementation)](concurrency-xv6-threads)
 
 ### File Systems
+* [File System Checker](filesystems-checker)
+
 
 
 
